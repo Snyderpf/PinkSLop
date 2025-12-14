@@ -14,9 +14,13 @@ const deliveryDate = today.add(7, 'days');
   
 // console.log(deliveryDate.format('dddd MMMM D'));
 
-let cartSummaryHTML = '';
 
-cart.forEach((cartItem) => {
+function renderOrderSummary()
+{
+
+    let cartSummaryHTML = '';
+
+    cart.forEach((cartItem) => {
     const productId = cartItem.productId;
 
     let matchingProduct;
@@ -28,9 +32,8 @@ cart.forEach((cartItem) => {
     });
 
     const deliveryOptionId = cartItem.deliveryOptionsId;
-    console.log(deliveryOptionId);
-    
-    
+
+
     let deliveryOption;
 
     deliveryOptions.forEach((option) => {
@@ -86,16 +89,16 @@ cart.forEach((cartItem) => {
             <div class="delivery-options-title">
                 Choose a delivery option:
             </div>
-             ${deliveryOptionsHTML(matchingProduct,cartItem)}
+                ${deliveryOptionsHTML(matchingProduct,cartItem)}
             </div>
         </div>
         </div>
 
     `;
-});
+    });
 
-function deliveryOptionsHTML(matchingProduct, cartItem)
-{
+    function deliveryOptionsHTML(matchingProduct, cartItem)
+    {
     let html = '';
     deliveryOptions.forEach((deliveryOption) => {
 
@@ -128,7 +131,7 @@ function deliveryOptionsHTML(matchingProduct, cartItem)
                 name="delivery-option-${matchingProduct.id}">
                 <div>
                 <div class="delivery-option-date">
-                   ${dateString}
+                    ${dateString}
                 </div>
                 <div class="delivery-option-price">
                     ${priceString} - Shipping
@@ -138,15 +141,15 @@ function deliveryOptionsHTML(matchingProduct, cartItem)
     });
 
     return html;
-}
+    }
 
 
 
-document.querySelector('.js-order-summary')
+    document.querySelector('.js-order-summary')
     .innerHTML = cartSummaryHTML; 
 
 
-document.querySelectorAll('.js-delete-link')
+    document.querySelectorAll('.js-delete-link')
     .forEach((link) => {
         link.addEventListener('click', () => {
             const productID = link.dataset.productId;
@@ -162,12 +165,15 @@ document.querySelectorAll('.js-delete-link')
         });
     });
 
- document.querySelectorAll('.js-delivery-option')
+    document.querySelectorAll('.js-delivery-option')
     .forEach((element) => {
         element.addEventListener('click', () => {
 
             const {productId,deliveryOptionId } = element.dataset;
             updateDeliveryOption(productId,deliveryOptionId);
-
+            renderOrderSummary();
         });
     });
+
+}
+renderOrderSummary();
