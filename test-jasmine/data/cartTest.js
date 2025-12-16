@@ -25,8 +25,6 @@ describe('test suite: addToCart',() => {
     });
 
 
-
-
     it('adds a new product to the cart', () => {
 
         spyOn(localStorage,'setItem');
