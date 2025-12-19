@@ -1,36 +1,31 @@
-import {cart} from '../../data/cart.js';
-import {getProduct} from '../../data/products.js';
-import {deliveryOptions, getDeliveryOption} from '../../data/deliveryOptions.js';
-import {formatCurrency} from '../utils/money.js';
+import { cart } from "../../data/cart.js";
+import { getProduct } from "../../data/products.js";
+import {
+  deliveryOptions,
+  getDeliveryOption,
+} from "../../data/deliveryOptions.js";
+import { formatCurrency } from "../utils/money.js";
+import { addOrder } from "../../data/orders.js";
 
+export function renderPaymentSummary() {
+  let productPriceCents = 0;
+  let shippingPriceCents = 0;
 
+  cart.forEach((cartItem) => {
+    const product = getProduct(cartItem.productId);
+    productPriceCents += product.priceCents * cartItem.quantity;
 
+    const deliveryOption = getDeliveryOption(cartItem.deliveryOptionsId);
 
-export function renderPaymentSummary()
-{   
-    let productPriceCents = 0;
-    let shippingPriceCents = 0;
+    shippingPriceCents += deliveryOption.priceCents;
+  });
 
-    cart.forEach((cartItem)=> {
-        
-        const product = getProduct(cartItem.productId);
-        productPriceCents += product.priceCents * cartItem.quantity;
-        
-        const deliveryOption= getDeliveryOption(cartItem.deliveryOptionsId);
-   
-        shippingPriceCents += deliveryOption.priceCents;
-       
-    });    
-   
+  const totalBeforeTaxCents = productPriceCents + shippingPriceCents;
+  const taxCents = totalBeforeTaxCents * 0.1;
 
-    const totalBeforeTaxCents = productPriceCents + shippingPriceCents;
-    const taxCents =  totalBeforeTaxCents * 0.1;
+  const totalCents = totalBeforeTaxCents + taxCents;
 
-    const totalCents = totalBeforeTaxCents + taxCents;
-
-
-
-    const paymentSummaryHTML = `
+  const paymentSummaryHTML = `
     
           <div class="payment-summary-title">
             Order Summary
@@ -71,12 +66,34 @@ export function renderPaymentSummary()
             </div>
           </div>
 
-          <button class="place-order-button button-primary">
+          <button class="place-order-button button-primary  
+           js-place-order">
             Place your order
           </button>
 
     `;
 
-    document.querySelector('.js-payment-summary')
-    .innerHTML = paymentSummaryHTML;
+  document.querySelector(".js-payment-summary").innerHTML = paymentSummaryHTML;
+
+  document
+    .querySelector(".js-place-order")
+    .addEventListener("click", async () => {
+      try {
+        const response = await fetch("https://supersimplebackend.dev/orders", {
+          method: "POST",
+          headers: {
+            "content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            cart: cart,
+          }),
+        });
+        const order = await response.json();
+        console.log(order);
+      } catch (error) {
+        console.log("Unexpected errror. Try again later");
+      }
+
+      window.location.href = 'orders.html';
+    });
 }
